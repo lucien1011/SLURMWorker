@@ -5,6 +5,7 @@ basic_script_text_template = """#!/bin/bash
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user={email}
 #SBATCH --ntasks={ntasks}
+#SBATCH --cpus-per-task={n_core}
 #SBATCH --mem={mem}
 #SBATCH --time={time}
 #SBATCH --output={output}_%j.log
@@ -45,6 +46,7 @@ class SLURMWorker(object):
             time,
             output,
             commands,
+            n_core="1",
             ):
         script_file = open(out_path,"w")
         basic_script_text = basic_script_text_template.format(
@@ -55,6 +57,7 @@ class SLURMWorker(object):
                 time = time,
                 output = output,
                 commands = commands,
+                n_core = n_core,
                 )
         script_file.write(basic_script_text)
         script_file.close()
