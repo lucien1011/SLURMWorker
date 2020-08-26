@@ -1,6 +1,6 @@
 import os
 
-basic_script_text_template = """#!/bin/bash
+basic_job_setting_template = """
 #SBATCH --job-name={job_name}
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user={email}
@@ -8,6 +8,10 @@ basic_script_text_template = """#!/bin/bash
 #SBATCH --mem={mem}
 #SBATCH --time={time}
 #SBATCH --output={output}_%j.log
+"""
+
+basic_script_text_template = """#!/bin/bash
+{job_setting}
 pwd; hostname; date
 
 {commands}
@@ -28,15 +32,24 @@ class SLURMWorker(object):
             time,
             output,
             commands,
+            gpu=None,
             ):
         script_file = open(out_path,"w")
-        basic_script_text = basic_script_text_template.format(
+        job_setting = basic_job_setting_template.format(
                 job_name = job_name,
                 email = email,
                 ntasks = ntasks,
                 mem = mem,
                 time = time,
                 output = output,
+                )
+        if gpu:
+            job_setting += """
+#SBATCH --partition=gpu
+#SBATCH --gpus={gpu}
+""".format(gpu=gpu)
+        basic_script_text = basic_script_text_template.format(
+                job_setting = job_setting,
                 commands = commands,
                 )
         script_file.write(basic_script_text)
